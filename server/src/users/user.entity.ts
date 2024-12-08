@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -23,7 +22,6 @@ export class User {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Exclude()
   @Column({ type: 'varchar' })
   password: string;
 

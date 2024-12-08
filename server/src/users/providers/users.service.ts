@@ -8,28 +8,17 @@ import { User } from '../user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
+import { CreateUserProvider } from './create-user.provider';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
+    private readonly createUserProvider: CreateUserProvider,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
-    const existingUser = await this.usersRepository.findOne({
-      where: [
-        { username: createUserDto.username },
-        { email: createUserDto.email },
-      ],
-    });
-
-    if (existingUser) {
-      throw new ConflictException('User already exists');
-    }
-
-    const user = this.usersRepository.create(createUserDto);
-    await this.usersRepository.save(user);
-    return user;
+    return this.createUserProvider.createUser(createUserDto);
   }
 
   async findUserById(id: number) {
@@ -48,6 +37,18 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    return user;
+  }
+
+  async findByUsername(username: string) {
+    const user = await this.usersRepository.findOne({
+      where: { username },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     return user;
   }
 
