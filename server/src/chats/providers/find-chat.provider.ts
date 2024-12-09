@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Chat } from "../chat.entity";
-import { IsNull, Repository } from "typeorm";
-import { WsException } from "@nestjs/websockets";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Chat } from '../chat.entity';
+import { Repository } from 'typeorm';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class FindChatProvider {
@@ -23,26 +23,36 @@ export class FindChatProvider {
         'createdBy.id',
         'createdBy.username',
         'createdBy.nickname',
-        'participants.id'
+        'participants.id',
       ])
       .where('chat.deletedAt IS NULL')
       .getMany();
   }
 
   async findChatById(id: number) {
-    const chat = await this.chatsRepository.findOne({
-      where: { id },
-      relations: ['createdBy', 'participants', 'messages', 'messages.sender'],
-      select: {
-        createdBy: { id: true, username: true, nickname: true },
-        participants: { id: true, username: true, nickname: true },
-        messages: {
-          sender: { id: true, username: true, nickname: true },
-          content: true,
-          createdAt: true,
-        },
-      },
-    });
+    const chat = await this.chatsRepository
+      .createQueryBuilder('chat')
+      .leftJoinAndSelect('chat.createdBy', 'createdBy')
+      .leftJoinAndSelect('chat.participants', 'participants')
+      .leftJoinAndSelect('chat.messages', 'messages')
+      .leftJoinAndSelect('messages.sender', 'sender')
+      .select([
+        'chat',
+        'createdBy.id',
+        'createdBy.username',
+        'createdBy.nickname',
+        'participants.id',
+        'participants.username',
+        'participants.nickname',
+        'messages.content',
+        'messages.createdAt',
+        'sender.id',
+        'sender.username',
+        'sender.nickname',
+      ])
+      .where('chat.id = :id', { id })
+      .getOne();
+
     if (!chat) {
       throw new WsException('Chat not found');
     }

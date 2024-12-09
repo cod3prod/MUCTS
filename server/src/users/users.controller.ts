@@ -29,20 +29,50 @@ export class UsersController {
   @Auth(AuthType.None)
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+    const user = await this.usersService.createUser(createUserDto);
+    return {
+      status: 'ok',
+      user: {
+        id: user.id,
+        username: user.username,
+        nickname: user.nickname,
+        email: user.email,
+      },
+    };
   }
 
   @Get('me')
+  @UseGuards(UserAccessGuard)
   async getCurrentUser(@ActiveUser() activeUser: ActiveUserData) {
-    return this.usersService.findUserById(activeUser.sub);
+    const user = await this.usersService.findUserById(activeUser.sub);
+    return {
+      status: 'ok',
+      user: {
+        id: user.id,
+        username: user.username,
+        nickname: user.nickname,
+        email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    };
   }
 
   @Get(':id')
   @UseGuards(UserAccessGuard)
-  async getUserById(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    return this.usersService.findUserById(id);
+  async getUserById(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.usersService.findUserById(id);
+    return {
+      status: 'ok',
+      user: {
+        id: user.id,
+        username: user.username,
+        nickname: user.nickname,
+        email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    };
   }
 
   @Patch(':id')
@@ -51,15 +81,26 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() patchUserDto: PatchUserDto,
   ) {
-    return this.usersService.patchUser(id, patchUserDto);
+    const user = await this.usersService.patchUser(id, patchUserDto);
+    return {
+      status: 'ok',
+      user: {
+        id: user.id,
+        username: user.username,
+        nickname: user.nickname,
+        email: user.email,
+      },
+    };
   }
 
   @Delete(':id')
   @UseGuards(UserAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  async deleteUser(@Param('id', ParseIntPipe) id: number) {
     await this.usersService.deleteUser(id);
+    return {
+      status: 'ok',
+      message: 'User deleted successfully',
+    };
   }
 }

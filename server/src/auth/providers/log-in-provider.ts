@@ -19,7 +19,7 @@ export class LogInProvider {
     private readonly generateTokensProvider: GenerateTokensProvider
   ) {}
 
-  async logIn(logInDto: LogInDto) {
+  public async logIn(logInDto: LogInDto) {
     const user = await this.usersService.findByUsername(logInDto.username);
     
     if (!user) {
