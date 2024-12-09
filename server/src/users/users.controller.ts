@@ -9,7 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './providers/users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -18,6 +18,7 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/auth/interfaces/activate-user-data.interface';
+import { UserAccessGuard } from 'src/auth/guards/user-access.guard';
 
 @Auth(AuthType.Bearer)
 @Controller('users')
@@ -37,37 +38,28 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UseGuards(UserAccessGuard)
   async getUserById(
     @Param('id', ParseIntPipe) id: number,
-    @ActiveUser() activeUser: ActiveUserData,
   ) {
-    if (id !== activeUser.sub) {
-      throw new UnauthorizedException('Cannot view other users information');
-    }
     return this.usersService.findUserById(id);
   }
 
   @Patch(':id')
+  @UseGuards(UserAccessGuard)
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() patchUserDto: PatchUserDto,
-    @ActiveUser() activeUser: ActiveUserData,
   ) {
-    if (id !== activeUser.sub) {
-      throw new UnauthorizedException('Cannot update other users');
-    }
     return this.usersService.patchUser(id, patchUserDto);
   }
 
   @Delete(':id')
+  @UseGuards(UserAccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(
     @Param('id', ParseIntPipe) id: number,
-    @ActiveUser() activeUser: ActiveUserData,
   ) {
-    if (id !== activeUser.sub) {
-      throw new UnauthorizedException('Cannot delete other users');
-    }
     await this.usersService.deleteUser(id);
   }
 }

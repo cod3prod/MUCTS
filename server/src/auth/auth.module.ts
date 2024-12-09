@@ -10,6 +10,8 @@ import { LogInProvider } from './providers/log-in-provider';
 import { AuthController } from './auth.controller';
 import { GenerateTokensProvider } from './providers/generate-tokens.provider';
 import { RefreshTokensProvider } from './providers/refresh-tokens.providers';
+import { UserAccessGuard } from './guards/user-access.guard';
+import { WsAuthGuard } from './guards/ws-auth.guard';
 
 @Module({
   controllers: [AuthController],
@@ -21,13 +23,20 @@ import { RefreshTokensProvider } from './providers/refresh-tokens.providers';
     },
     LogInProvider,
     GenerateTokensProvider,
-    RefreshTokensProvider
+    RefreshTokensProvider,
+    UserAccessGuard,
+    WsAuthGuard,
   ],
   imports: [
     forwardRef(() => UsersModule),
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
-  exports: [AuthService, HashingProvider],
+  exports: [
+    AuthService, 
+    HashingProvider, 
+    UserAccessGuard, 
+    WsAuthGuard,
+  ],
 })
 export class AuthModule {}

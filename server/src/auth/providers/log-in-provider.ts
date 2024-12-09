@@ -7,9 +7,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/users/providers/users.service';
 import { HashingProvider } from './hashing.provider';
-import { JwtService } from '@nestjs/jwt';
-import jwtConfig from '../config/jwt.config';
-import { ConfigType } from '@nestjs/config';
 import { LogInDto } from '../dtos/log-in.dto';
 import { GenerateTokensProvider } from './generate-tokens.provider';
 

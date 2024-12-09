@@ -9,7 +9,6 @@ import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 export class AuthService {
   constructor(
     @Inject(UsersService)
-    private usersService: UsersService,
     private readonly logInProvider: LogInProvider,
     private readonly refreshTokensProvider: RefreshTokensProvider,
   ) {}
