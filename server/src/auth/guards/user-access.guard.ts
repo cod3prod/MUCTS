@@ -12,9 +12,9 @@ export class UserAccessGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user: ActiveUserData = request['user'];
     if (Number(user.sub) !== Number(request.params.id)) {
-      throw new ForbiddenException(
-        'You are not allowed to access this resource',
-      );
+      throw new ForbiddenException({
+        description: 'You are not allowed to access this resource'
+      });
     }
     return true;
   }

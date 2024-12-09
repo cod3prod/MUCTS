@@ -21,6 +21,13 @@ export class LogInProvider {
 
   async logIn(logInDto: LogInDto) {
     const user = await this.usersService.findByUsername(logInDto.username);
+    
+    if (!user) {
+      throw new UnauthorizedException({
+        description: 'User not found'
+      });
+    }
+  
     let isEqual;
     try {
       isEqual = await this.hashingProvider.comparePassword(
@@ -28,15 +35,17 @@ export class LogInProvider {
         user.password,
       );
     } catch (error) {
-      throw new RequestTimeoutException(error, {
-        description: 'Could not campare the password',
+      throw new RequestTimeoutException({
+        description: 'Could not compare the password'
       });
     }
-
+  
     if (!isEqual) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException({
+        description: 'Invalid credentials'
+      });
     }
-
+  
     return this.generateTokensProvider.generateTokens(user);
   }
 }

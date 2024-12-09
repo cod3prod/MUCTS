@@ -11,8 +11,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/authentication.guard';
 import { AccessTokenGuard } from './auth/guards/access-token.guard';
 import { AuthModule } from './auth/auth.module';
-import jwtConfig from './auth/config/jwt.config';
-import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -39,8 +37,6 @@ import { JwtModule } from '@nestjs/jwt';
         synchronize: configService.get('database.synchronize'),
       }),
     }),
-    ConfigModule.forFeature(jwtConfig),
-    JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
   controllers: [AppController],
   providers: [
@@ -49,7 +45,6 @@ import { JwtModule } from '@nestjs/jwt';
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
     },
-    AccessTokenGuard,
   ],
 })
 export class AppModule {}

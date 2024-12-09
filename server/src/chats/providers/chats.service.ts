@@ -34,12 +34,10 @@ export class ChatsService {
   }
 
   async addMessageToChat(chatId: number, createMessageDto: CreateMessageDto) {
-    const chat = await this.findChatById(chatId);
-    if (!chat) {
-      throw new NotFoundException('Chat not found');
-    }
-
-    return await this.messagesService.createMessage(createMessageDto);
+    return await this.messagesService.createMessage({
+      ...createMessageDto,
+      chatId
+    });
   }
 
   async patchChat(id: number, patchChatDto: PatchChatDto) {

@@ -12,24 +12,21 @@ export class FindChatProvider {
   ) {}
 
   async getAllChats() {
-    const chats = await this.chatsRepository.find({
-      where: { deletedAt: IsNull() },
-      relations: ['createdBy', 'participants'],
-      select: {
-        id: true,
-        title: true,
-        createdAt: true,
-        createdBy: { id: true, username: true, nickname: true },
-      },
-      loadRelationIds: {
-        relations: ['participants'],
-      },
-    });
-
-    return chats.map(chat => ({
-      ...chat,
-      participantsCount: chat.participants.length
-    }));
+    return await this.chatsRepository
+      .createQueryBuilder('chat')
+      .leftJoinAndSelect('chat.createdBy', 'createdBy')
+      .leftJoinAndSelect('chat.participants', 'participants')
+      .select([
+        'chat.id',
+        'chat.title',
+        'chat.createdAt',
+        'createdBy.id',
+        'createdBy.username',
+        'createdBy.nickname',
+        'participants.id'
+      ])
+      .where('chat.deletedAt IS NULL')
+      .getMany();
   }
 
   async findChatById(id: number) {

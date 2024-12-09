@@ -37,9 +37,20 @@ export class RefreshTokensProvider {
 
       const user = await this.usersService.findUserById(sub);
 
+      if (!user) {
+        throw new UnauthorizedException({
+          description: 'User not found'
+        });
+      }
+
       return this.generateTokensProvider.generateTokens(user);
     } catch (error) {
-      throw new UnauthorizedException(error);
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException({
+        description: error.message || 'Failed to refresh tokens'
+      });
     }
   }
 }

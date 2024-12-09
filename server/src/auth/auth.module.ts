@@ -12,6 +12,8 @@ import { GenerateTokensProvider } from './providers/generate-tokens.provider';
 import { RefreshTokensProvider } from './providers/refresh-tokens.providers';
 import { UserAccessGuard } from './guards/user-access.guard';
 import { WsAuthGuard } from './guards/ws-auth.guard';
+import { AccessTokenGuard } from './guards/access-token.guard';
+import { WsUserAccessGuard } from './guards/ws-user-access.guard';
 
 @Module({
   controllers: [AuthController],
@@ -26,6 +28,8 @@ import { WsAuthGuard } from './guards/ws-auth.guard';
     RefreshTokensProvider,
     UserAccessGuard,
     WsAuthGuard,
+    WsUserAccessGuard,
+    AccessTokenGuard,
   ],
   imports: [
     forwardRef(() => UsersModule),
@@ -37,6 +41,9 @@ import { WsAuthGuard } from './guards/ws-auth.guard';
     HashingProvider, 
     UserAccessGuard, 
     WsAuthGuard,
+    JwtModule,
+    AccessTokenGuard,
+    WsUserAccessGuard,
   ],
 })
 export class AuthModule {}

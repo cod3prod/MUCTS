@@ -1,37 +1,42 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UsersService } from '../../users/providers/users.service';
 import { CreateChatDto } from '../dtos/create-chat.dto';
 import { Chat } from '../chat.entity';
+import { DataSource, Repository } from 'typeorm';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class CreateChatProvider {
   constructor(
     @InjectRepository(Chat)
-    private chatsRepository: Repository<Chat>,
-    private usersService: UsersService,
+    private chatRepository: Repository<Chat>,
+    private dataSource: DataSource,
   ) {}
 
   async createChat(createChatDto: CreateChatDto) {
-    const createdBy = await this.usersService.findUserById(
-      createChatDto.createdById,
-    );
+    return await this.dataSource.transaction(async (manager) => {
+      const userRepo = manager.getRepository(User);
+      const chatRepo = manager.getRepository(Chat);
 
-    if (!createdBy) {
-      throw new NotFoundException('Created by user not found');
-    }
+      const createdBy = await userRepo.findOne({
+        where: { id: createChatDto.createdById }
+      });
 
-    const chat = this.chatsRepository.create(createChatDto);
-    await this.chatsRepository.save(chat);
+      if (!createdBy) {
+        throw new NotFoundException('Created by user not found');
+      }
 
-    createdBy.chat = chat;
+      const chat = chatRepo.create({
+        ...createChatDto,
+        createdBy
+      });
 
-    await this.usersService.patchUser(createdBy.id, {
-      ...createdBy,
-      chat: createdBy.chat,
+      await chatRepo.save(chat);
+      
+      createdBy.chat = chat;
+      await userRepo.save(createdBy);
+
+      return chat;
     });
-
-    return chat;
   }
 }

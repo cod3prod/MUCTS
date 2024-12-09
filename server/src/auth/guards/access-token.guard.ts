@@ -28,7 +28,9 @@ export class AccessTokenGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException({
+        description: 'Authorization token not found'
+      });
     }
     try {
       const payload = await this.jwtService.verifyAsync(
@@ -36,8 +38,10 @@ export class AccessTokenGuard implements CanActivate {
         this.jwtConfiguration,
       );
       request['user'] = payload;
-    } catch {
-      throw new UnauthorizedException();
+    } catch (error) {
+      throw new UnauthorizedException({
+        description: error.message || 'Invalid token'
+      });
     }
     return true;
   }
