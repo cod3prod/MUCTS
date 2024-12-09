@@ -9,12 +9,14 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
 import { CreateUserProvider } from './create-user.provider';
+import { PatchUserProvider } from './patch-user.provider';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     private readonly createUserProvider: CreateUserProvider,
+    private readonly patchUserProvider: PatchUserProvider,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -53,9 +55,7 @@ export class UsersService {
   }
 
   async patchUser(id: number, patchUserDto: PatchUserDto) {
-    const user = await this.findUserById(id);
-    const updatedUser = this.usersRepository.merge(user, patchUserDto);
-    return await this.usersRepository.save(updatedUser);
+    return this.patchUserProvider.patchUser(id, patchUserDto);
   }
 
   async deleteUser(id: number) {
