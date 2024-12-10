@@ -3,12 +3,18 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #7e69fe;
+  --primary-hover: #6c55eb; /* 10% 어둡게 */
+  --primary-focus: #9080fe; /* 10% 밝게 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #7e69fe;
+    --primary-hover: #9080fe; /* 다크모드에서는 hover시 더 밝게 */
+    --primary-focus: #6c55eb;
   }
 }
 
