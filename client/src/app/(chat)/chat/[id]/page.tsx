@@ -1,6 +1,6 @@
-import ChatRoom from "@/components/chat/chat-room";
+import ChatRoom from "../../_components/chat-room";
 
-export default function ChatPage() {
+export default function Page() {
   return (
     <main className="mt-24 grow w-full max-w-7xl mx-auto p-4">
       <ChatRoom />

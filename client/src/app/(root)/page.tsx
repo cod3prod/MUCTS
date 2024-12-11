@@ -1,5 +1,5 @@
-import Banner from "./components/banner";
-import ChatList from "./components/chat-list";
+import Banner from "./_components/banner";
+import ChatList from "./_components/chat-list";
 
 export default function Page() {
   return (
