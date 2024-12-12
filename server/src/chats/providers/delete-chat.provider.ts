@@ -13,14 +13,14 @@ export class DeleteChatProvider {
     @InjectRepository(Chat)
     private chatsRepository: Repository<Chat>,
     private findChatProvider: FindChatProvider,
-    private dataSource: DataSource
+    private dataSource: DataSource,
   ) {}
 
   async deleteChat(id: number, createdById: number) {
     return await this.dataSource.transaction(async (manager) => {
       const chatRepo = manager.getRepository(Chat);
       const userRepo = manager.getRepository(User);
-      
+
       const chat = await this.findChatProvider.findChatById(id);
       if (!chat) {
         throw new WsException('Chat not found');
@@ -43,9 +43,10 @@ export class DeleteChatProvider {
         .execute();
 
       return {
-        message: 'Successfully deleted chat',
         chatId: id,
-        createdById,
+        createdBy: {
+          id: createdById,
+        },
       };
     });
   }
