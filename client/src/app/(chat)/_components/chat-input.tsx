@@ -1,15 +1,21 @@
+"use client";
+
 import { FormEvent, useState } from "react";
 import Button from "@/components/ui/button";
 import { IoSend } from "react-icons/io5";
 
-export default function ChatInput() {
+interface ChatInputProps {
+  onSendMessage: (message: string) => void;
+}
+
+export default function ChatInput({ onSendMessage }: ChatInputProps) {
   const [message, setMessage] = useState("");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
-    // TODO: 메시지 전송 로직 구현
-    console.log(message);
+    
+    onSendMessage(message);
     setMessage("");
   };
 
@@ -26,6 +32,7 @@ export default function ChatInput() {
         <Button 
           type="submit" 
           className="rounded-full w-10 h-10 p-0 flex items-center justify-center"
+          disabled={!message.trim()}
         >
           <IoSend className="w-5 h-5" />
         </Button>
