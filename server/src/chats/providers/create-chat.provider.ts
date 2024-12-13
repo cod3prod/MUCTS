@@ -36,7 +36,14 @@ export class CreateChatProvider {
       createdBy.chat = chat;
       await userRepo.save(createdBy);
 
-      return chat;
+      return {
+        id: chat.id,
+        createdBy: {
+          id: createdBy.id,
+          username: createdBy.username,
+          nickname: createdBy.nickname
+        },
+      };
     });
   }
 }

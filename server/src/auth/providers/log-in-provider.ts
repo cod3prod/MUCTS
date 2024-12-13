@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotImplementedException,
   RequestTimeoutException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -17,17 +18,17 @@ export class LogInProvider {
     private readonly usersService: UsersService,
     private readonly hashingProvider: HashingProvider,
     private readonly generateTokensProvider: GenerateTokensProvider
-  ) {}
+  ) { }
 
   public async logIn(logInDto: LogInDto) {
     const user = await this.usersService.findByUsername(logInDto.username);
-    
+
     if (!user) {
       throw new UnauthorizedException({
         description: 'User not found'
       });
     }
-  
+
     let isEqual;
     try {
       isEqual = await this.hashingProvider.comparePassword(
@@ -39,13 +40,27 @@ export class LogInProvider {
         description: 'Could not compare the password'
       });
     }
-  
+
     if (!isEqual) {
       throw new UnauthorizedException({
         description: 'Invalid credentials'
       });
     }
-  
-    return this.generateTokensProvider.generateTokens(user);
+
+    const tokens = await this.generateTokensProvider.generateTokens(user);
+    const result = {
+      tokens: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+      },
+      user: {
+        id: user.id,
+        username: user.username,
+        nickname: user.nickname,
+        email: user.email,
+        chatId: user.chat?.id || null,
+      }
+    }
+    return result;
   }
 }

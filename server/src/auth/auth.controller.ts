@@ -4,9 +4,12 @@ import { LogInDto } from './dtos/log-in.dto';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { Logger } from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   @Post('log-in')

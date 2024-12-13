@@ -12,10 +12,10 @@ export class AuthService {
   ) {}
 
   public async logIn(logInDto: LogInDto) {
-    return this.logInProvider.logIn(logInDto);
+    return await this.logInProvider.logIn(logInDto);
   }
 
   public async refreshTokens(refreshTokenDto: RefreshTokenDto) {
-    return this.refreshTokensProvider.refreshTokens(refreshTokenDto);
+    return await this.refreshTokensProvider.refreshTokens(refreshTokenDto);
   }
 }

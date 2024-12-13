@@ -22,16 +22,17 @@ export class ChatsController {
     const chats = await this.chatsService.getAllChats();
     return {
       status: 'ok',
-      chats: chats,
+      chats,
     };
   }
 
   @Get(':id')
+  @Auth(AuthType.None)
   async getChatById(@Param('id', ParseIntPipe) id: number) {
     const chat = await this.chatsService.findChatById(id);
     return {
       status: 'ok',
-      chat: chat,
+      chat,
     };
   }
 
@@ -40,17 +41,7 @@ export class ChatsController {
     const chat = await this.chatsService.createChat(createChatDto);
     return {
       status: 'ok',
-      chat: {
-        id: chat.id,
-        title: chat.title,
-        createdAt: chat.createdAt,
-        createdBy: {
-          id: chat.createdBy.id,
-          username: chat.createdBy.username,
-          nickname: chat.createdBy.nickname,
-          email: chat.createdBy.email,
-        },
-      },
+      chat: chat,
     };
   }
 }
