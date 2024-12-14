@@ -46,6 +46,8 @@ export class DeleteChatProvider {
         chatId: id,
         createdBy: {
           id: createdById,
+          username: chat.createdBy.username,
+          nickname: chat.createdBy.nickname
         },
       };
     });

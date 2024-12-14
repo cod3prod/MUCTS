@@ -32,21 +32,24 @@ export class UsersController {
     const user = await this.usersService.createUser(createUserDto);
     return {
       status: 'ok',
+      message: 'User created successfully',
       user: {
         id: user.id,
         username: user.username,
         nickname: user.nickname,
         email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     };
   }
 
   @Get('me')
-  @UseGuards(UserAccessGuard)
   async getCurrentUser(@ActiveUser() activeUser: ActiveUserData) {
     const user = await this.usersService.findUserById(activeUser.sub);
     return {
       status: 'ok',
+      message: 'User found successfully',
       user: {
         id: user.id,
         username: user.username,
@@ -64,6 +67,7 @@ export class UsersController {
     const user = await this.usersService.findUserById(id);
     return {
       status: 'ok',
+      message: 'User found successfully',
       user: {
         id: user.id,
         username: user.username,
@@ -84,11 +88,14 @@ export class UsersController {
     const user = await this.usersService.patchUser(id, patchUserDto);
     return {
       status: 'ok',
+      message: 'User updated successfully',
       user: {
         id: user.id,
         username: user.username,
         nickname: user.nickname,
         email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     };
   }

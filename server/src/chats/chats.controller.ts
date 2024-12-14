@@ -22,6 +22,7 @@ export class ChatsController {
     const chats = await this.chatsService.getAllChats();
     return {
       status: 'ok',
+      message: 'Chats found successfully',
       chats,
     };
   }
@@ -32,6 +33,7 @@ export class ChatsController {
     const chat = await this.chatsService.findChatById(id);
     return {
       status: 'ok',
+      message: 'Chat found successfully',
       chat,
     };
   }
@@ -41,7 +43,8 @@ export class ChatsController {
     const chat = await this.chatsService.createChat(createChatDto);
     return {
       status: 'ok',
-      chat: chat,
+      message: 'Chat created successfully',
+      chat,
     };
   }
 }
