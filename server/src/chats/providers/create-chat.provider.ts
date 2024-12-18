@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateChatDto } from '../dtos/create-chat.dto';
 import { Chat } from '../chat.entity';
@@ -19,20 +19,24 @@ export class CreateChatProvider {
       const chatRepo = manager.getRepository(Chat);
 
       const createdBy = await userRepo.findOne({
-        where: { id: createChatDto.createdById }
+        where: { id: createChatDto.createdById },
       });
 
       if (!createdBy) {
         throw new NotFoundException('Created by user not found');
       }
 
+      if (createdBy.chat) {
+        throw new ConflictException('User already has a chat');
+      }
+
       const chat = chatRepo.create({
         ...createChatDto,
-        createdBy
+        createdBy,
       });
 
       await chatRepo.save(chat);
-      
+
       createdBy.chat = chat;
       await userRepo.save(createdBy);
 
@@ -41,7 +45,7 @@ export class CreateChatProvider {
         createdBy: {
           id: createdBy.id,
           username: createdBy.username,
-          nickname: createdBy.nickname
+          nickname: createdBy.nickname,
         },
       };
     });

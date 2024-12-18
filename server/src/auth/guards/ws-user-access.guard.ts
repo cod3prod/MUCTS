@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
+import { STATUS_CODES } from 'http';
 import { Socket } from 'socket.io';
 
 @Injectable()

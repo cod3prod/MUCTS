@@ -5,7 +5,7 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { PatchChatDto } from './dtos/patch-chat.dto';
 import { CreateMessageDto } from 'src/messages/dtos/create-message.dto';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, Logger } from '@nestjs/common';
 import { WsAuthGuard } from 'src/auth/guards/ws-auth.guard';
 import { WsUserAccessGuard } from 'src/auth/guards/ws-user-access.guard';
 
@@ -17,6 +17,8 @@ import { WsUserAccessGuard } from 'src/auth/guards/ws-user-access.guard';
 })
 @UseGuards(WsAuthGuard)
 export class ChatsGateway {
+  private readonly logger = new Logger(ChatsGateway.name);
+
   @WebSocketServer()
   server: Server;
 
@@ -28,11 +30,15 @@ export class ChatsGateway {
     @MessageBody() data: { userId: number; chatId: number },
   ) {
     try {
+      this.logger.debug(`joinChat 이벤트 수신: ${JSON.stringify(data)}`);
       const result = await this.chatsService.joinChat(data.userId, data.chatId);
+      this.logger.debug(`joinChat 처리 결과: ${JSON.stringify(result)}`);
+      
       client.join(`chat_${data.chatId}`);
       this.server.to(`chat_${data.chatId}`).emit('userJoined', result);
       return result;
     } catch (error) {
+      this.logger.error(`joinChat 에러: ${error.message}`);
       client.emit('error', {
         message: error.message,
         event: 'joinChat'

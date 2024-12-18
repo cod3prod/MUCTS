@@ -53,7 +53,7 @@ export class ChatParticipationProvider {
 
       // 이미 해당 채팅방에 참여 중인 경우
       if (user.chat && user.chat.id === chatId) {
-        throw new WsException('이미 참여 중인 채팅방입니다');
+        return chat;
       }
 
       user.chat = chat;

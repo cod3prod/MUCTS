@@ -57,8 +57,6 @@ export class LogInProvider {
         id: user.id,
         username: user.username,
         nickname: user.nickname,
-        email: user.email,
-        chatId: user.chat?.id || null,
       }
     }
     return result;

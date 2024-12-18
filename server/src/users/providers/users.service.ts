@@ -32,6 +32,8 @@ export class UsersService {
         username: true,
         nickname: true,
         email: true,
+        createdAt: true,
+        updatedAt: true,
         chat: { id: true, title: true, createdAt: true },
       },
     });
