@@ -1,98 +1,68 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
-import { FaRegUser } from "react-icons/fa6";
 import { IoArrowBack } from "react-icons/io5";
+import { FaRegUser } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
-import ChatMessage from "./chat-message";
-import ChatInput from "./chat-input";
-import useSocket from "@/hooks/use-socket";
-import { ChatRoomProps } from "@/types/chat";
 import Modal from "@/components/layout/modal";
 import EditChatTitle from "@/components/layout/modal/edit-chat-title";
 import Alert from "@/components/layout/modal/alert";
+import ChatMessage from "./chat-message";
+import ChatInput from "./chat-input";
+import { useAuthStore } from "@/zustand/auth-store";
+import { useChatStore } from "@/zustand/chat-store";
+import { useFetch } from "@/hooks/use-fetch";
+import { ChatsControllerResponse } from "@/types/api";
+import { useEffect } from "react";
+import { useParams } from "next/navigation";
 
-export default function ChatRoom({ chatId, userId, token }: ChatRoomProps) {
-  const router = useRouter();
-  const messageEndRef = useRef<HTMLDivElement>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  
-  const { 
-    isConnected, 
-    chatLog, 
-    chatInfo, 
+export default function ChatRoom() {
+  const {
+    title,
+    createdBy,
+    createdAt,
+    participants,
+    messages,
     error,
-    joinChat,
-    leaveChat,
-    sendMessage,
-    patchChat 
-  } = useSocket(
-    process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000",
-    token
-  );
+    setTitle,
+    setChatId,
+    setCreatedAt,
+    setCreatedBy,
+    setParticipants,
+    setMessages,
+  } = useChatStore();
+  const { isAuthenticated, accessToken, user } = useAuthStore();
+  const {
+    fetchWithRetry,
+    data,
+    isLoading,
+    error: fetchError,
+  } = useFetch<ChatsControllerResponse>();
 
-  const scrollToBottom = useCallback(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    if (isConnected) {
-      joinChat({ userId, chatId });
-    }
-    return () => {
-      if (isConnected) {
-        leaveChat({ userId, chatId });
-      }
-    };
-  }, [isConnected, userId, chatId, joinChat, leaveChat]);
+  const { chatId } = useParams();
 
   useEffect(() => {
-    scrollToBottom();
-  }, [chatLog, scrollToBottom]);
+    if (typeof chatId === "string") {
+      fetchWithRetry(`${process.env.NEXT_PUBLIC_API_URL}/chats/${chatId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authentication: `Bearer ${accessToken}`,
+        },
+      });
+    }
+  }, [chatId]);
 
   useEffect(() => {
-    if (error) {
-      setAlertMessage(error);
-      setShowAlert(true);
-      router.push('/');
-    }
-  }, [error, router]);
+    console.log("테스트", data);
+    const chatInfo = data?.chat;
+    setTitle(chatInfo?.title || null);
+    setParticipants(chatInfo?.participants || []);
+    setMessages(chatInfo?.messages || []);
+    setCreatedAt(chatInfo?.createdAt || null);
+    setCreatedBy(chatInfo?.createdBy || null);
+  }, [data]);
 
-  const handleExit = useCallback(() => {
-    leaveChat({ userId, chatId });
-    router.push('/');
-  }, [leaveChat, userId, chatId, router]);
-
-  const handleSendMessage = useCallback((content: string) => {
-    if (!content.trim()) return;
-    
-    sendMessage({
-      chatId,
-      content,
-      senderId: userId,
-    });
-  }, [chatId, userId, sendMessage]);
-
-  const handleEditTitle = useCallback((newTitle: string) => {
-    if (!chatInfo || chatInfo.createdBy.id !== userId) {
-      setAlertMessage("채팅방 제목은 방장만 수정할 수 있습니다.");
-      setShowAlert(true);
-      return;
-    }
-    
-    patchChat({
-      id: chatId,
-      patchChatDto: {
-        title: newTitle
-      }
-    });
-    setIsEditModalOpen(false);
-  }, [chatId, chatInfo, userId, patchChat]);
-
-  if (!chatInfo) return null;
+  // todo data가 null일 때 처리해줄 거 만들기
 
   return (
     <>
@@ -100,7 +70,6 @@ export default function ChatRoom({ chatId, userId, token }: ChatRoomProps) {
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-4">
             <button
-              onClick={handleExit}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="나가기"
             >
@@ -108,10 +77,9 @@ export default function ChatRoom({ chatId, userId, token }: ChatRoomProps) {
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold">{chatInfo.title}</h1>
-                {chatInfo.createdBy.id === userId && (
+                <h1 className="text-xl font-bold">{title}</h1>
+                {createdBy === user?.id && (
                   <button
-                    onClick={() => setIsEditModalOpen(true)}
                     className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                     aria-label="채팅방 제목 수정"
                   >
@@ -120,32 +88,33 @@ export default function ChatRoom({ chatId, userId, token }: ChatRoomProps) {
                 )}
               </div>
               <p className="mt-1 text-sm text-gray-500">
-                {new Date(chatInfo.createdAt).toLocaleDateString()}
+                {new Date(
+                  createdAt || new Date().toISOString()
+                ).toLocaleDateString()}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-1 text-gray-500">
             <FaRegUser className="w-5 h-5" />
-            <span>{chatInfo.participants.length}</span>
+            <span>{participants.length}</span>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {chatLog.map((message) => (
+          {messages.map((message, index) => (
             <ChatMessage
-              key={message.id}
+              key={index}
               message={message.content}
-              sender={message.sender.nickname}
-              isMine={message.sender.id === userId}
+              sender={message.sender.nickname || "삭제된 사용자"}
+              isMine={message.sender.id === user?.id}
             />
           ))}
-          <div ref={messageEndRef} />
         </div>
 
-        <ChatInput onSendMessage={handleSendMessage} />
+        <ChatInput />
       </div>
 
-      <Modal
+      {/* <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         title="채팅방 제목 수정"
@@ -154,7 +123,7 @@ export default function ChatRoom({ chatId, userId, token }: ChatRoomProps) {
           currentTitle={chatInfo.title}
           onSubmit={handleEditTitle}
           onCancel={() => setIsEditModalOpen(false)}
-          isCreator={chatInfo.createdBy.id === userId}
+          isCreator={chatInfo.createdBy.id === user.id}
         />
       </Modal>
 
@@ -169,7 +138,7 @@ export default function ChatRoom({ chatId, userId, token }: ChatRoomProps) {
           message={alertMessage}
           onConfirm={() => setShowAlert(false)}
         />
-      </Modal>
+      </Modal> */}
     </>
   );
 }

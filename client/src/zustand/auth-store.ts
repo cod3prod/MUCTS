@@ -1,24 +1,20 @@
 import { create } from "zustand";
+import { LogInResponse } from "@/types/api";
 
-interface AuthStore {
-  // 인증 상태
+type AuthStore = {
   isAuthenticated: boolean;
   user: {
     id: number;
     username: string;
     nickname: string;
-    email: string;
   } | null;
   accessToken: string | null;
   refreshToken: string | null;
 
-  // 액션
-  login: (tokens: {
-    accessToken: string;
-    refreshToken: string;
-  }) => Promise<void>;
+  login: (response: LogInResponse) => Promise<void>;
   logout: () => void;
   setUser: (user: AuthStore["user"]) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   initialize: () => void;
 }
 
@@ -29,32 +25,45 @@ export const useAuthStore = create<AuthStore>((set) => ({
   refreshToken: null,
 
   initialize: () => {
+    if(typeof window === "undefined") return;
+    
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
-
-    if (accessToken && refreshToken) {
+    const user = localStorage.getItem("user");
+  
+    if (accessToken && refreshToken && user) {
       set({
         accessToken,
         refreshToken,
         isAuthenticated: true,
+        user: JSON.parse(user as string) || null,
       });
+    } else {
+      console.log("no token");
     }
   },
 
-  login: async (tokens) => {
-    localStorage.setItem("accessToken", tokens.accessToken);
-    localStorage.setItem("refreshToken", tokens.refreshToken);
+  login: async (response: LogInResponse) => {
+    const accessToken = response.tokens.accessToken;
+    const refreshTokenToken = response.tokens.refreshToken;
+    const user = response.user;
+
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshTokenToken);
+    localStorage.setItem("user", JSON.stringify(user));
 
     set({
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
+      accessToken: accessToken,
+      refreshToken: refreshTokenToken,
       isAuthenticated: true,
+      user: user,
     });
   },
 
   logout: () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
 
     set({
       accessToken: null,
@@ -65,4 +74,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   setUser: (user) => set({ user }),
+
+  setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
 }));

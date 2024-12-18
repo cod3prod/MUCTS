@@ -3,15 +3,9 @@
 import { FormEvent, useState } from "react";
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
-import useFetch from "@/hooks/use-fetch";
 import { useRouter } from "next/navigation";
-
-interface ValidationErrors {
-  username?: string;
-  email?: string;
-  nickname?: string;
-  password?: string;
-}
+import { AuthValidationError } from "@/types/form";
+import { useRegister } from "@/hooks/use-register";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -21,16 +15,13 @@ export default function RegisterForm() {
     nickname: "",
     password: "",
   });
-  const [errors, setErrors] = useState<ValidationErrors>({});
-
-  const { fetchData, error, loading } = useFetch<{ accessToken: string; refreshToken: string }>({
-    url: `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
-    method: "POST",
-    body: formData,
-  });
+  const [validationError, setValidationError] = useState<AuthValidationError>(
+    {}
+  );
+  const { handleRegister, isLoading, error } = useRegister();
 
   const validateForm = () => {
-    const newErrors: ValidationErrors = {};
+    const newErrors: AuthValidationError = {};
 
     // 아이디 검증
     if (formData.username.length < 4 || formData.username.length > 20) {
@@ -53,17 +44,17 @@ export default function RegisterForm() {
       newErrors.password = "비밀번호는 8자 이상이어야 합니다";
     }
 
-    setErrors(newErrors);
+    setValidationError(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
-    await fetchData();
-    
+    await handleRegister(formData);
+
     if (!error) {
       router.push("/login");
     }
@@ -81,75 +72,101 @@ export default function RegisterForm() {
           </div>
         )}
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="username"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             아이디
           </label>
           <Input
             id="username"
             type="text"
             value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, username: e.target.value })
+            }
             required
             placeholder="아이디를 입력해주세요"
-            disabled={loading}
+            disabled={isLoading}
           />
-          {errors.username && (
-            <p className="mt-1 text-sm text-red-500">{errors.username}</p>
+          {validationError.username && (
+            <p className="mt-1 text-sm text-red-500">
+              {validationError.username}
+            </p>
           )}
         </div>
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             이메일
           </label>
           <Input
             id="email"
             type="email"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
             required
             placeholder="이메일을 입력해주세요"
-            disabled={loading}
+            disabled={isLoading}
           />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+          {validationError.email && (
+            <p className="mt-1 text-sm text-red-500">{validationError.email}</p>
           )}
         </div>
         <div>
-          <label htmlFor="nickname" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="nickname"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             닉네임
           </label>
           <Input
             id="nickname"
             type="text"
             value={formData.nickname}
-            onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, nickname: e.target.value })
+            }
             required
             placeholder="닉네임을 입력해주세요"
-            disabled={loading}
+            disabled={isLoading}
           />
-          {errors.nickname && (
-            <p className="mt-1 text-sm text-red-500">{errors.nickname}</p>
+          {validationError.nickname && (
+            <p className="mt-1 text-sm text-red-500">
+              {validationError.nickname}
+            </p>
           )}
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             비밀번호
           </label>
           <Input
             id="password"
             type="password"
             value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
             required
             placeholder="비밀번호를 입력해주세요"
-            disabled={loading}
+            disabled={isLoading}
           />
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+          {validationError.password && (
+            <p className="mt-1 text-sm text-red-500">
+              {validationError.password}
+            </p>
           )}
         </div>
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "처리중..." : "회원가입"}
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "처리중..." : "회원가입"}
         </Button>
       </form>
     </div>

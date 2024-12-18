@@ -3,15 +3,9 @@
 import { FormEvent, useState } from "react";
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
-import useFetch from "@/hooks/use-fetch";
-import { LoginResponse } from "@/types/auth";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/zustand/auth-store";
-
-interface ValidationErrors {
-  username?: string;
-  password?: string;
-}
+import { AuthValidationError } from "@/types/form";
+import { useLogin } from "@/hooks/use-login";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -19,41 +13,34 @@ export default function LoginForm() {
     username: "",
     password: "",
   });
-  const [errors, setErrors] = useState<ValidationErrors>({});
-  
-  const { fetchData, error, loading } = useFetch<LoginResponse>({
-    url: `${process.env.NEXT_PUBLIC_API_URL}/auth/log-in`,
-    method: "POST",
-    body: formData,
-  });
-
-  const { login } = useAuthStore();
+  const [validationError, setValidationError] = useState<AuthValidationError>(
+    {}
+  );
+  const { handleLogin, isLoading, error } = useLogin();
 
   const validateForm = () => {
-    const newErrors: ValidationErrors = {};
+    const newError: AuthValidationError = {};
 
     if (formData.username.length < 4 || formData.username.length > 20) {
-      newErrors.username = "아이디는 4~20자 사이여야 합니다";
+      newError.username = "아이디는 4~20자 사이여야 합니다";
     }
 
     if (formData.password.length < 8) {
-      newErrors.password = "비밀번호는 8자 이상이어야 합니다";
+      newError.password = "비밀번호는 8자 이상이어야 합니다";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setValidationError(newError);
+    return Object.keys(newError).length === 0;
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
-    const response = await fetchData();
-    console.log('테스트', response);
-    
-    if (response) {
-      await login(response);
+
+    await handleLogin(formData);
+
+    if (!error) {
       router.push("/");
     }
   };
@@ -70,43 +57,57 @@ export default function LoginForm() {
           </div>
         )}
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="username"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             아이디
           </label>
           <Input
             id="username"
             type="text"
             value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, username: e.target.value })
+            }
             required
             placeholder="아이디를 입력해주세요"
-            disabled={loading}
+            disabled={isLoading}
           />
-          {errors.username && (
-            <p className="mt-1 text-sm text-red-500">{errors.username}</p>
+          {validationError.username && (
+            <p className="mt-1 text-sm text-red-500">
+              {validationError.username}
+            </p>
           )}
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             비밀번호
           </label>
           <Input
             id="password"
             type="password"
             value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
             required
             placeholder="비밀번호를 입력해주세요"
-            disabled={loading}
+            disabled={isLoading}
           />
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+          {validationError.password && (
+            <p className="mt-1 text-sm text-red-500">
+              {validationError.password}
+            </p>
           )}
         </div>
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "로그인 중..." : "로그인"}
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "로그인 중..." : "로그인"}
         </Button>
       </form>
     </div>
   );
-} 
+}

@@ -1,9 +1,3 @@
-type ChatRoomProps = {
-  chatId: number;
-  userId: number;
-  token: string;
-};
-
 // 소켓 이벤트 타입
 type SocketEvent = 
   | "joinChat" 

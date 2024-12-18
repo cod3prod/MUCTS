@@ -4,18 +4,13 @@ import { FormEvent, useState } from "react";
 import Button from "@/components/ui/button";
 import { IoSend } from "react-icons/io5";
 
-interface ChatInputProps {
-  onSendMessage: (message: string) => void;
-}
-
-export default function ChatInput({ onSendMessage }: ChatInputProps) {
+export default function ChatInput() {
   const [message, setMessage] = useState("");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
     
-    onSendMessage(message);
     setMessage("");
   };
 

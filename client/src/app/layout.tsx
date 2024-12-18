@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/index.css";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import Global from "@/components/global";
 
 export const metadata: Metadata = {
   title: "먹츠 | 먹고 싶은 사람들끼리 모여라",
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="flex flex-col min-h-screen">
+        <Global />
         <Header />
         {children}
         <Footer />
