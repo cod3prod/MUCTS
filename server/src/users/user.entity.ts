@@ -25,7 +25,7 @@ export class User {
   @Column({ type: 'varchar' })
   password: string;
 
-  @ManyToOne(() => Chat, (chat) => chat.participants, { nullable: true })
+  @ManyToOne(() => Chat, (chat) => chat.participants, { nullable: true, onDelete: 'SET NULL' })
   chat: Chat;
 
   @CreateDateColumn()

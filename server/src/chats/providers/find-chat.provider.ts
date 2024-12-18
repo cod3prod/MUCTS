@@ -25,7 +25,6 @@ export class FindChatProvider {
         'createdBy.nickname',
         'participants.id',
       ])
-      .where('chat.deletedAt IS NULL')
       .getMany();
   }
 

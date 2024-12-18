@@ -6,6 +6,7 @@ import { FindChatProvider } from './find-chat.provider';
 import { WsException } from '@nestjs/websockets';
 import { DataSource } from 'typeorm';
 import { User } from 'src/users/user.entity';
+import { Message } from 'src/messages/message.entity';
 
 @Injectable()
 export class DeleteChatProvider {
@@ -20,6 +21,7 @@ export class DeleteChatProvider {
     return await this.dataSource.transaction(async (manager) => {
       const chatRepo = manager.getRepository(Chat);
       const userRepo = manager.getRepository(User);
+      const messageRepo = manager.getRepository(Message);
 
       const chat = await this.findChatProvider.findChatById(id);
       if (!chat) {
@@ -30,7 +32,7 @@ export class DeleteChatProvider {
         throw new WsException('Cannot delete chat created by another user');
       }
 
-      const result = await chatRepo.softDelete(id);
+      const result = await chatRepo.delete(id);
       if (result.affected === 0) {
         throw new WsException('Chat not found');
       }
@@ -39,6 +41,12 @@ export class DeleteChatProvider {
         .createQueryBuilder()
         .update(User)
         .set({ chat: null })
+        .where('chat.id = :chatId', { chatId: id })
+        .execute();
+
+      await messageRepo
+        .createQueryBuilder()
+        .delete()
         .where('chat.id = :chatId', { chatId: id })
         .execute();
 

@@ -5,7 +5,6 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
   ManyToOne,
   OneToMany,
   Column,
@@ -19,9 +18,9 @@ export class Chat {
   @Column({ type: 'varchar', length: 20 })
   title: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   createdBy: User;
-
+  
   @OneToMany(() => User, (user) => user.chat)
   participants: User[];
 
@@ -33,7 +32,4 @@ export class Chat {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

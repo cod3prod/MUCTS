@@ -10,6 +10,7 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { PatchUserDto } from '../dtos/patch-user.dto';
 import { CreateUserProvider } from './create-user.provider';
 import { PatchUserProvider } from './patch-user.provider';
+import { DeleteUserProvider } from './delete-user.provider';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,7 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
     private readonly createUserProvider: CreateUserProvider,
     private readonly patchUserProvider: PatchUserProvider,
+    private readonly deleteUserProvider: DeleteUserProvider,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -61,9 +63,6 @@ export class UsersService {
   }
 
   async deleteUser(id: number) {
-    const result = await this.usersRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException('User not found');
-    }
+    return this.deleteUserProvider.deleteUser(id);
   }
 }

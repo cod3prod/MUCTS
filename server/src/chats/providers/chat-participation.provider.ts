@@ -46,12 +46,10 @@ export class ChatParticipationProvider {
         throw new WsException('사용자를 찾을 수 없습니다');
       }
 
-      // 이미 다른 채팅방에 참여 중인 경우
       if (user.chat && user.chat.id !== chatId) {
         throw new WsException('이미 다른 채팅방에 참여 중입니다');
       }
 
-      // 이미 해당 채팅방에 참여 중인 경우
       if (user.chat && user.chat.id === chatId) {
         return chat;
       }
@@ -59,12 +57,32 @@ export class ChatParticipationProvider {
       user.chat = chat;
       await userRepo.save(user);
 
-      return chat;
+      const updatedChat = await chatRepo.findOne({
+        where: { id: chatId },
+        relations: ['createdBy', 'participants'],
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          createdBy: { 
+            id: true, 
+            username: true, 
+            nickname: true 
+          },
+          participants: {
+            id: true,
+            username: true,
+            nickname: true
+          }
+        }
+      });
+
+      return updatedChat;
     });
   }
 
   async leaveChat(userId: number, chatId: number) {
-    return await this.dataSource. transaction(async (manager) => {
+    return await this.dataSource.transaction(async (manager) => {
       const chatRepo = manager.getRepository(Chat);
       const userRepo = manager.getRepository(User);
 
@@ -88,9 +106,8 @@ export class ChatParticipationProvider {
 
       // 방장이 나가면 채팅방 비활성화
       if (chat.createdBy.id === userId) {
-        await chatRepo.softDelete(chatId);
+        await chatRepo.delete(chatId);
         
-        // 모든 참여자 퇴장
         await userRepo
           .createQueryBuilder()
           .update(User)
@@ -98,22 +115,29 @@ export class ChatParticipationProvider {
           .where('chat.id = :chatId', { chatId })
           .execute();
 
-        return {
-          type: 'deactivate',
-          chatId,
-          userId
-        };
+        // 비활성화된 채팅방 정보를 다시 조회
+        const deletedChat = await chatRepo
+          .createQueryBuilder('chat')
+          .withDeleted()
+          .leftJoinAndSelect('chat.createdBy', 'createdBy')
+          .leftJoinAndSelect('chat.participants', 'participants')
+          .where('chat.id = :id', { id: chatId })
+          .getOne();
+
+        return deletedChat;
       }
 
       // 일반 참여자 퇴장
       user.chat = null;
       await userRepo.save(user);
 
-      return {
-        type: 'leave',
-        chatId,
-        userId
-      };
+      // 업데이트된 채팅방 정보를 다시 조회
+      const updatedChat = await chatRepo.findOne({
+        where: { id: chatId },
+        relations: ['createdBy', 'participants']
+      });
+
+      return updatedChat;
     });
   }
 }

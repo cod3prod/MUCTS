@@ -55,7 +55,7 @@ export class UsersController {
         username: user.username,
         nickname: user.nickname,
         email: user.email,
-        chatId: user.chat.id,
+        chatId: user.chat?.id,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
@@ -74,7 +74,7 @@ export class UsersController {
         username: user.username,
         nickname: user.nickname,
         email: user.email,
-        chatId: user.chat.id,
+        chatId: user.chat?.id,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
@@ -96,7 +96,7 @@ export class UsersController {
         username: user.username,
         nickname: user.nickname,
         email: user.email,
-        chatId: user.chat.id,
+        chatId: user.chat?.id,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
@@ -108,9 +108,5 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     await this.usersService.deleteUser(id);
-    return {
-      status: 'ok',
-      message: 'User deleted successfully',
-    };
   }
 }
