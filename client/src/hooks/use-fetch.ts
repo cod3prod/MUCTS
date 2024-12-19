@@ -5,7 +5,6 @@ import { useAuthStore } from "@/zustand/auth-store";
 import { useState, useCallback } from "react";
 
 export function useFetch<T>() {
-  const [data, setData] = useState<T | null>(null);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setTokens, initialize } = useAuthStore();
@@ -20,7 +19,6 @@ export function useFetch<T>() {
 
         if (response.ok) {
           const responseData = await response.json();
-          setData(responseData);
           return responseData;
         }
 
@@ -28,7 +26,7 @@ export function useFetch<T>() {
           const refreshResponse = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-tokens`,
             {
-              method: "POST",
+              method: options?.method || "GET",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("refreshToken")}`,
@@ -61,7 +59,6 @@ export function useFetch<T>() {
           }
 
           const retryData = await retryResponse.json();
-          setData(retryData);
           return retryData;
         }
 
@@ -76,5 +73,5 @@ export function useFetch<T>() {
     [setTokens, initialize]
   );
 
-  return { fetchWithRetry, data, isLoading, error };
+  return { fetchWithRetry, isLoading, error };
 }
