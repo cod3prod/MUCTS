@@ -1,5 +1,4 @@
-import { User } from "@/types/entity";
-import { Message } from "@/types/entity"; 
+import { User, Message } from "@/types/entity"; 
 import { Socket } from "socket.io-client";
 import { create } from "zustand";
 

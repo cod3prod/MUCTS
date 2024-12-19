@@ -3,15 +3,21 @@
 import ChatCard from "./chat-card";
 import { ChatsControllerResponse } from "@/types/api";
 import { useFetch } from "@/hooks/use-fetch";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function ChatList() {
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const URL = `${BASE_URL}/chats`;
-  const { fetchWithRetry, data, isLoading, error } = useFetch<ChatsControllerResponse>();
-  
+  const { fetchWithRetry, isLoading, error } = useFetch<ChatsControllerResponse>();
+  const [data, setData] = useState<ChatsControllerResponse | null>(null);
+
   useEffect(() => {
-    fetchWithRetry(URL);
+    const fetchData = async () => {
+      const result = await fetchWithRetry(URL);
+      setData(result);
+    }
+
+    fetchData();
   }, []);
 
   if (isLoading) {
@@ -47,10 +53,10 @@ export default function ChatList() {
           <ChatCard
             key={chat.id}
             id={chat.id}
-            title={chat.title}
-            createdAt={chat.createdAt}
-            createdBy={chat.createdBy.nickname}
-            participantsCount={chat.participants.length}
+            title={chat.title!}
+            createdAt={chat.createdAt!}
+            createdBy={chat.createdBy!.nickname!}
+            participantsCount={chat.participants!.length}
           />
         ))}
       </div>

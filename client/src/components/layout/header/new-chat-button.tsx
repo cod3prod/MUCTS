@@ -6,40 +6,66 @@ import Modal from "../modal";
 import CreateChatForm from "../modal/create-chat-form";
 import { useAuthStore } from "@/zustand/auth-store";
 import { useFetch } from "@/hooks/use-fetch";
-import { ChatsControllerResponse } from "@/types/api";
+import { ChatsControllerResponse, UsersControllerResponse } from "@/types/api";
 import { useRouter } from "next/navigation";
 
 export default function NewChatButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const { isLoading, error, data, fetchWithRetry } =
-    useFetch<ChatsControllerResponse>();
-  const { accessToken, isAuthenticated } = useAuthStore();
+  const { isLoading, fetchWithRetry } =
+    useFetch<ChatsControllerResponse|UsersControllerResponse>();
+  const { accessToken, isAuthenticated, user } = useAuthStore();
+  const [error, setError] = useState<string>("");
   const router = useRouter();
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const URL = `${BASE_URL}/chats`;
 
-  const handleCreateChat = async () => {
-    if (!isAuthenticated) {
-      setShowAlert(true);
+const handleCreateChat = async (title: string) => {
+  if (!isAuthenticated || !user) {
+    setShowAlert(true);
+    return;
+  }
+
+  try {
+    const userResponse: UsersControllerResponse | null = await fetchWithRetry(
+      `${BASE_URL}/users/me`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (userResponse?.user?.chatId) {
+      setError("이미 다른 채팅방에 참여 중입니다");
+      setIsModalOpen(true);
       return;
     }
 
-    await fetchWithRetry(URL, {
+    const result:ChatsControllerResponse | null = await fetchWithRetry(URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
+      body: JSON.stringify({ title: title, createdById: user.id }),
     });
 
     if (error) {
       setIsModalOpen(true);
       return;
     }
-
-    router.push(`/chat/${data?.chat?.id}`)
-  };
+    
+    if(result) {
+      router.push(`/chat/${result.chat!.id}`);
+    }
+  } catch (err) {
+    setError("채팅방 생성 중 오류가 발생했습니다");
+    setIsModalOpen(true);
+  }
+};
 
   return (
     <>
