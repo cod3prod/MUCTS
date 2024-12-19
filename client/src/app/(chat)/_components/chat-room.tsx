@@ -1,6 +1,5 @@
 "use client";
 
-import { IoArrowBack } from "react-icons/io5";
 import { FaRegUser } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import Modal from "@/components/layout/modal";
@@ -12,8 +11,9 @@ import { useAuthStore } from "@/zustand/auth-store";
 import { useChatStore } from "@/zustand/chat-store";
 import { useFetch } from "@/hooks/use-fetch";
 import { ChatsControllerResponse } from "@/types/api";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import ExitButton from "./exit-button";
 
 export default function ChatRoom() {
   const {
@@ -22,38 +22,37 @@ export default function ChatRoom() {
     createdAt,
     participants,
     messages,
-    error,
     setTitle,
-    setChatId,
     setCreatedAt,
     setCreatedBy,
     setParticipants,
     setMessages,
   } = useChatStore();
-  const { isAuthenticated, accessToken, user } = useAuthStore();
-  const {
-    fetchWithRetry,
-    data,
-    isLoading,
-    error: fetchError,
-  } = useFetch<ChatsControllerResponse>();
+  const { accessToken, user } = useAuthStore();
+  const [data, setData] = useState<ChatsControllerResponse | null>();
+  const { fetchWithRetry } = useFetch<ChatsControllerResponse | null>();
 
   const { chatId } = useParams();
-
-  useEffect(() => {
-    if (typeof chatId === "string") {
-      fetchWithRetry(`${process.env.NEXT_PUBLIC_API_URL}/chats/${chatId}`, {
+  const fetchData = async () => {
+    const result = await fetchWithRetry(
+      `${process.env.NEXT_PUBLIC_API_URL}/chats/${chatId}`,
+      {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authentication: `Bearer ${accessToken}`,
         },
-      });
-    }
+      }
+    );
+    setData(result);
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [chatId]);
 
   useEffect(() => {
-    console.log("테스트", data);
+    console.log("chatRoom fetch test", data);
     const chatInfo = data?.chat;
     setTitle(chatInfo?.title || null);
     setParticipants(chatInfo?.participants || []);
@@ -69,12 +68,7 @@ export default function ChatRoom() {
       <div className="h-[calc(100vh-200px)] max-w-4xl mx-auto flex flex-col bg-white rounded-xl shadow-lg">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-4">
-            <button
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="나가기"
-            >
-              <IoArrowBack className="w-5 h-5 text-gray-500" />
-            </button>
+            <ExitButton />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold">{title}</h1>
@@ -105,7 +99,7 @@ export default function ChatRoom() {
             <ChatMessage
               key={index}
               message={message.content}
-              sender={message.sender.nickname || "삭제된 사용자"}
+              sender={message.sender.nickname || "탈퇴한 사용자"}
               isMine={message.sender.id === user?.id}
             />
           ))}

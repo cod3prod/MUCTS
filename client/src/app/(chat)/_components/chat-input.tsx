@@ -3,14 +3,25 @@
 import { FormEvent, useState } from "react";
 import Button from "@/components/ui/button";
 import { IoSend } from "react-icons/io5";
+import { useChatStore } from "@/zustand/chat-store";
+import { useAuthStore } from "@/zustand/auth-store";
 
 export default function ChatInput() {
   const [message, setMessage] = useState("");
+  const { socket, chatId } = useChatStore();
+  const { user } = useAuthStore();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
-    
+    if(socket) {
+      console.log("sendMessage test")
+      socket.emit("sendMessage", {
+        chatId: chatId,
+        senderId: user?.id,
+        content: message
+      })      
+    }
     setMessage("");
   };
 
