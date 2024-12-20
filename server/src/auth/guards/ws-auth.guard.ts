@@ -14,14 +14,9 @@ export class WsAuthGuard implements CanActivate {
     try {
       const client: Socket = context.switchToWs().getClient();
       
-      // 디버깅을 위한 로그 추가
-      this.logger.debug('Headers:', client.handshake.headers);
+      // 디버깅을 위한 로그
       this.logger.debug('Auth:', client.handshake.auth);
-      
-      // handshake.headers와 handshake.auth 모두 확인
-      const authToken = 
-        client.handshake.headers.authorization?.split(' ')[1] || 
-        client.handshake.auth.token;
+      const authToken = client.handshake.auth.token;
 
       if (!authToken) {
         throw new WsException({ description: 'Authorization token not found' });

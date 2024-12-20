@@ -91,7 +91,7 @@ export class ChatsGateway {
   @SubscribeMessage('patchChat')
   async handlePatchChat(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { id: number; patchChatDto: PatchChatDto },
+    @MessageBody() data: { id: number; createdById: number; patchChatDto: PatchChatDto },
   ) {
     try {
       const updatedChat = await this.chatsService.patchChat(
@@ -116,9 +116,9 @@ export class ChatsGateway {
     @MessageBody() data: { id: number; createdById: number },
   ) {
     try {
-      const result = await this.chatsService.deleteChat(data.id, data.createdById);
-      this.server.to(`chat_${data.id}`).emit('chatDeleted', result);
-      return result;
+      await this.chatsService.deleteChat(data.id, data.createdById);
+      this.server.to(`chat_${data.id}`).emit('chatDeleted');
+      return true;
     } catch (error) {
       client.emit('error', {
         message: error.message,

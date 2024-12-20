@@ -13,8 +13,8 @@ export default function EditButton() {
   if (title === null) return null;
 
   const handleEditTitle = (title: string) => {
-    if (socket)
-      socket.emit("patchChat", { id: chatId, patchChatDto: { title } });
+    if (socket && createdBy && chatId)
+      socket.emit("patchChat", { id: chatId, createdById: createdBy.id, patchChatDto: { title } });
     setIsEditModalOpen(false);
   };
 
