@@ -1,7 +1,6 @@
 "use client";
 
 import { FaRegUser } from "react-icons/fa6";
-import { FaEdit } from "react-icons/fa";
 import Modal from "@/components/layout/modal";
 import EditChatTitle from "@/components/layout/modal/edit-chat-title";
 import Alert from "@/components/layout/modal/alert";
@@ -14,6 +13,7 @@ import { ChatsControllerResponse } from "@/types/api";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ExitButton from "./exit-button";
+import EditButton from "./edit-button";
 
 export default function ChatRoom() {
   const {
@@ -70,16 +70,9 @@ export default function ChatRoom() {
           <div className="flex items-center gap-4">
             <ExitButton />
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <h1 className="text-xl font-bold">{title}</h1>
-                {createdBy === user?.id && (
-                  <button
-                    className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                    aria-label="채팅방 제목 수정"
-                  >
-                    <FaEdit className="w-4 h-4 text-gray-500" />
-                  </button>
-                )}
+                {createdBy?.id === user?.id && <EditButton />}
               </div>
               <p className="mt-1 text-sm text-gray-500">
                 {new Date(

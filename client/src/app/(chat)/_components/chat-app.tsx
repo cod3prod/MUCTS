@@ -78,6 +78,13 @@ export default function ChatApp() {
       }
     });
 
+    newSocket.on("chatUpdated", (result) => {
+      console.log("chatUpdated 이벤트 수신:", result);
+      if (result) {
+        setTitle(result.title);
+      }
+    });
+
     // 디버깅 용도
     newSocket.onAny((event, ...args) => {
       console.log(`수신된 이벤트: ${event}`, args);

@@ -87,6 +87,7 @@ export class ChatsGateway {
     }
   }
 
+  @UseGuards(WsUserAccessGuard)
   @SubscribeMessage('patchChat')
   async handlePatchChat(
     @ConnectedSocket() client: Socket,
