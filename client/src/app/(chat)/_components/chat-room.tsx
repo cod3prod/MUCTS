@@ -7,7 +7,7 @@ import { useAuthStore } from "@/zustand/auth-store";
 import { useChatStore } from "@/zustand/chat-store";
 import { useFetch } from "@/hooks/use-fetch";
 import { ChatsControllerResponse } from "@/types/api";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import ExitButton from "./exit-button";
 import EditButton from "./edit-button";
@@ -27,7 +27,7 @@ export default function ChatRoom() {
   const { accessToken, user } = useAuthStore();
   const [data, setData] = useState<ChatsControllerResponse | null>();
   const { fetchWithRetry } = useFetch<ChatsControllerResponse | null>();
-
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const { chatId } = useParams();
   const fetchData = async () => {
     const result = await fetchWithRetry(
@@ -57,6 +57,17 @@ export default function ChatRoom() {
     setCreatedBy(chatInfo?.createdBy || null);
   }, [data]);
 
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <>
       <div className="h-[calc(100vh-200px)] max-w-4xl mx-auto flex flex-col bg-white rounded-xl shadow-lg">
@@ -81,7 +92,10 @@ export default function ChatRoom() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll"
+        >
           {messages.map((message, index) => (
             <ChatMessage
               key={index}
@@ -91,7 +105,6 @@ export default function ChatRoom() {
             />
           ))}
         </div>
-
         <ChatInput />
       </div>
     </>
