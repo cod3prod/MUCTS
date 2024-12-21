@@ -9,7 +9,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './providers/users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -18,7 +17,6 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/auth/interfaces/activate-user-data.interface';
-import { UserAccessGuard } from 'src/auth/guards/user-access.guard';
 
 @Auth(AuthType.Bearer)
 @Controller('users')
@@ -63,7 +61,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(UserAccessGuard)
+  @Auth(AuthType.Bearer)
+  @Auth(AuthType.Access)
   async getUserById(@Param('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findUserById(id);
     return {
@@ -82,7 +81,8 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(UserAccessGuard)
+  @Auth(AuthType.Bearer)
+  @Auth(AuthType.Access)
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() patchUserDto: PatchUserDto,
@@ -104,7 +104,8 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(UserAccessGuard)
+  @Auth(AuthType.Bearer)
+  @Auth(AuthType.Access)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     await this.usersService.deleteUser(id);

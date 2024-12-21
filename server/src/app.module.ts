@@ -9,7 +9,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/authentication.guard';
-import { AccessTokenGuard } from './auth/guards/access-token.guard';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
