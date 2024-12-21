@@ -122,7 +122,10 @@ export default function ChatApp() {
       console.log(`수신된 이벤트: ${event}`, args);
     });
 
-    socket.on("error", (error: any) => {
+    socket.on("error", (error: {
+      message: string;
+      event: string;
+    }) => {
       console.error("socket error:", error);
       setError(error.message);
     });

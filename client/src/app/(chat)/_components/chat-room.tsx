@@ -1,9 +1,6 @@
 "use client";
 
 import { FaRegUser } from "react-icons/fa6";
-import Modal from "@/components/layout/modal";
-import EditChatTitle from "@/components/layout/modal/edit-chat-title";
-import Alert from "@/components/layout/modal/alert";
 import ChatMessage from "./chat-message";
 import ChatInput from "./chat-input";
 import { useAuthStore } from "@/zustand/auth-store";
@@ -18,7 +15,6 @@ import EditButton from "./edit-button";
 export default function ChatRoom() {
   const {
     title,
-    createdBy,
     createdAt,
     participants,
     messages,

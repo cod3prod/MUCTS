@@ -1,12 +1,6 @@
 import { create } from "zustand";
 import { LogInResponse } from "@/types/api";
 
-type UserDto = {
-  id?: number;
-  username?: string;
-  nickname?: string;
-}
-
 type AuthStore = {
   isAuthenticated: boolean;
   user: {

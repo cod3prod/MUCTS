@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-
 import { MessagesService } from 'src/messages/providers/messages.service';
 import { CreateChatDto } from '../dtos/create-chat.dto';
 import { CreateMessageDto } from 'src/messages/dtos/create-message.dto';

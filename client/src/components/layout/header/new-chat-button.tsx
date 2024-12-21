@@ -63,6 +63,7 @@ const handleCreateChat = async (title: string) => {
       router.push(`/chat/${result.chat!.id}`);
     }
   } catch (err) {
+    console.error("Error creating chat:", err);
     setError("채팅방 생성 중 오류가 발생했습니다");
     setIsModalOpen(true);
   }

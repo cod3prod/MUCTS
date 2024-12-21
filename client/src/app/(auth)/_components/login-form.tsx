@@ -3,12 +3,10 @@
 import { FormEvent, useState } from "react";
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
-import { useRouter } from "next/navigation";
 import { AuthValidationError } from "@/types/form";
 import { useLogin } from "@/hooks/use-login";
 
 export default function LoginForm() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     password: "",

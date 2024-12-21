@@ -7,8 +7,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatsService } from './providers/chats.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
-import { AuthType } from 'src/auth/enums/auth-type.enum';
 import { PatchChatDto } from './dtos/patch-chat.dto';
 import { CreateMessageDto } from 'src/messages/dtos/create-message.dto';
 import { UseGuards, Logger } from '@nestjs/common';
@@ -16,8 +14,6 @@ import { WsAuthGuard } from 'src/auth/guards/ws-auth.guard';
 import { WsUserAccessGuard } from 'src/auth/guards/ws-user-access.guard';
 import { AuthService } from 'src/auth/providers/auth.service';
 
-
-// @Auth(AuthType.WsBearer)
 @WebSocketGateway({
   cors: {
     origin: '*',

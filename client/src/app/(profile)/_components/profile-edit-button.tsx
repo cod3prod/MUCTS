@@ -1,11 +1,9 @@
 import Modal from "@/components/layout/modal";
 import EditProfileForm from "@/components/layout/modal/edit-profile-form";
-import Button from "@/components/ui/button";
 import { useFetch } from "@/hooks/use-fetch";
 import { UsersControllerResponse } from "@/types/api";
 import { useState } from "react";
 import { useAuthStore } from "@/zustand/auth-store";
-import { useRouter } from "next/navigation";
 
 export default function ProfileEditButton({
   email,
