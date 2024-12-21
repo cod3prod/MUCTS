@@ -1,18 +1,21 @@
 import { IoArrowBack } from "react-icons/io5";
 import { useChatStore } from "@/zustand/chat-store";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/zustand/auth-store";
+import { useRouter } from "next/navigation";
 
 export default function ExitButton() {
   const { user } = useAuthStore();
-  const { socket, chatId } = useChatStore();
+  const { socket, chatId, createdBy } = useChatStore();
   const router = useRouter();
 
   const handleExit = () => {
-    if (socket && chatId && user) {
+    if (socket && chatId && user && createdBy) {
+      if (createdBy.id === user.id) {
+        return socket.emit("deleteChat", { id: chatId, createdById: user.id });
+      }
       socket.emit("leaveChat", { userId: user.id, chatId });
+      return router.push("/");
     }
-    router.push("/");
   };
 
   return (

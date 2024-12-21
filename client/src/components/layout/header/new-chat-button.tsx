@@ -59,6 +59,7 @@ const handleCreateChat = async (title: string) => {
     }
     
     if(result) {
+      setIsModalOpen(false);
       router.push(`/chat/${result.chat!.id}`);
     }
   } catch (err) {

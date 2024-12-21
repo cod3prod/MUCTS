@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function useRegister() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleRegister = async (data: {
     username: string;
@@ -27,6 +29,7 @@ export function useRegister() {
       if (!res.ok) {
         throw new Error("Registration failed");
       }
+      router.push("/login");
     } catch (error) {
       setError((error as Error).message);
     } finally {

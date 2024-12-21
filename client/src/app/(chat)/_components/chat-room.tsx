@@ -61,8 +61,6 @@ export default function ChatRoom() {
     setCreatedBy(chatInfo?.createdBy || null);
   }, [data]);
 
-  // todo data가 null일 때 처리해줄 거 만들기
-
   return (
     <>
       <div className="h-[calc(100vh-200px)] max-w-4xl mx-auto flex flex-col bg-white rounded-xl shadow-lg">
@@ -72,7 +70,7 @@ export default function ChatRoom() {
             <div>
               <div className="flex items-center gap-1">
                 <h1 className="text-xl font-bold">{title}</h1>
-                {createdBy?.id === user?.id && <EditButton />}
+                {true && <EditButton />}
               </div>
               <p className="mt-1 text-sm text-gray-500">
                 {new Date(
@@ -100,32 +98,6 @@ export default function ChatRoom() {
 
         <ChatInput />
       </div>
-
-      {/* <Modal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        title="채팅방 제목 수정"
-      >
-        <EditChatTitle
-          currentTitle={chatInfo.title}
-          onSubmit={handleEditTitle}
-          onCancel={() => setIsEditModalOpen(false)}
-          isCreator={chatInfo.createdBy.id === user.id}
-        />
-      </Modal>
-
-      <Modal
-        isOpen={showAlert}
-        onClose={() => setShowAlert(false)}
-        title="알림"
-      >
-        <Alert
-          type="error"
-          title="오류"
-          message={alertMessage}
-          onConfirm={() => setShowAlert(false)}
-        />
-      </Modal> */}
     </>
   );
 }

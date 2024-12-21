@@ -35,14 +35,9 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
+    
     await handleLogin(formData);
-
-    if (!error) {
-      router.push("/");
-    }
   };
 
   return (

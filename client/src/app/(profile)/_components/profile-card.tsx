@@ -8,6 +8,7 @@ import { UsersControllerResponse } from "@/types/api";
 import { useEffect, useState } from "react";
 import Spinner from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
+import RequireLogin from "@/components/ui/require-login";
 
 export default function ProfileCard() {
   const [data, setData] = useState<UsersControllerResponse | null>(null);
@@ -36,6 +37,8 @@ export default function ProfileCard() {
 
     fetchData();
   }, [isAuthenticated, accessToken, user]);
+
+  if (!isAuthenticated) return <RequireLogin />;
 
   if (isLoading) return <Spinner />;
 

@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { useAuthStore } from "@/zustand/auth-store";
 import { LogInResponse } from "@/types/api";
+import { useRouter } from "next/navigation";
 
 export function useLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const { login } = useAuthStore();
 
   const handleLogin = async (data: { username: string; password: string }) => {
+    console.log("login test");
     try {
       setIsLoading(true);
       setError(null);
@@ -28,6 +31,7 @@ export function useLogin() {
 
       const result: LogInResponse = await res.json();
       login(result);
+      router.push("/");
     } catch (error) {
       setError((error as Error).message);
     } finally {

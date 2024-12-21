@@ -3,12 +3,10 @@
 import { FormEvent, useState } from "react";
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
-import { useRouter } from "next/navigation";
 import { AuthValidationError } from "@/types/form";
 import { useRegister } from "@/hooks/use-register";
 
 export default function RegisterForm() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -54,10 +52,6 @@ export default function RegisterForm() {
     if (!validateForm()) return;
 
     await handleRegister(formData);
-
-    if (!error) {
-      router.push("/login");
-    }
   };
 
   return (

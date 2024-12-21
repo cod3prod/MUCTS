@@ -14,7 +14,7 @@ export function useFetch<T>() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch(url, options);
 
         if (response.ok) {
@@ -23,14 +23,17 @@ export function useFetch<T>() {
         }
 
         if (response.status === 401) {
+          console.log("refresh token", localStorage.getItem("refreshToken"));
           const refreshResponse = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-tokens`,
             {
-              method: options?.method || "GET",
+              method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("refreshToken")}`,
               },
+              body: JSON.stringify({
+                refreshToken: localStorage.getItem("refreshToken"),
+              }),
             }
           );
 
@@ -40,7 +43,8 @@ export function useFetch<T>() {
             throw new Error("Failed to refresh token");
           }
 
-          const refreshData: RefreshTokenResponse = await refreshResponse.json();
+          const refreshData: RefreshTokenResponse =
+            await refreshResponse.json();
 
           localStorage.setItem("accessToken", refreshData.accessToken);
           localStorage.setItem("refreshToken", refreshData.refreshToken);
