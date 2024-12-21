@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
@@ -12,6 +13,7 @@ import { Request } from 'express';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
+  private readonly logger = new Logger(AccessTokenGuard.name);
   constructor(
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
@@ -27,7 +29,10 @@ export class AccessTokenGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
+    this.logger.debug('Extracted token: ' + token);
+
     if (!token) {
+      this.logger.warn('Authorization token not found');
       throw new UnauthorizedException({
         description: 'Authorization token not found'
       });
@@ -38,7 +43,9 @@ export class AccessTokenGuard implements CanActivate {
         this.jwtConfiguration,
       );
       request['user'] = payload;
+      this.logger.log('Token verified successfully, payload: ' + JSON.stringify(payload));
     } catch (error) {
+      this.logger.error('Token verification failed: ' + error.message);
       throw new UnauthorizedException({
         description: error.message || 'Invalid token'
       });
