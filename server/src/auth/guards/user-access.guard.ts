@@ -15,8 +15,8 @@ export class UserAccessGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user: ActiveUserData = request['user'];
     
-    this.logger.debug(`Request Params ID: ${request.params.id}`);
-    this.logger.debug(`Authenticated User ID: ${user.sub}`);
+    // this.logger.debug(`Request Params ID: ${request.params.id}`);
+    // this.logger.debug(`Authenticated User ID: ${user.sub}`);
     
     if (Number(user.sub) !== Number(request.params.id)) {
       this.logger.warn(`Access denied for User ID: ${user.sub}`);

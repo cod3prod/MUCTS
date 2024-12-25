@@ -37,9 +37,9 @@ export class ChatsGateway {
     @MessageBody() data: { userId: number; chatId: number },
   ) {
     try {
-      this.logger.debug(`joinChat 이벤트 수신: ${JSON.stringify(data)}`);
+      // this.logger.debug(`joinChat 이벤트 수신: ${JSON.stringify(data)}`);
       const result = await this.chatsService.joinChat(data.userId, data.chatId);
-      this.logger.debug(`joinChat 처리 결과: ${JSON.stringify(result)}`);
+      // this.logger.debug(`joinChat 처리 결과: ${JSON.stringify(result)}`);
       client.join(`chat_${data.chatId}`);
       this.server.to(`chat_${data.chatId}`).emit('userJoined', result);
       return result;

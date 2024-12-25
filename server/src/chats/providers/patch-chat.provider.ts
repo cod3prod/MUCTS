@@ -1,15 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from '../chat.entity';
 import { PatchChatDto } from '../dtos/patch-chat.dto';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class PatchChatProvider {
+  private logger = new Logger(PatchChatProvider.name);
   constructor(
-    @InjectRepository(Chat)
-    private chatRepository: Repository<Chat>,
     private dataSource: DataSource,
   ) {}
 
@@ -42,6 +41,9 @@ export class PatchChatProvider {
       }
 
       const updatedChat = chatRepo.merge(chat, patchChatDto);
+      
+      this.logger.log(`${updatedChat.createdBy.username} updated chat ${updatedChat.id} successfully`);
+
       return await chatRepo.save(updatedChat);
     });
   }

@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   RequestTimeoutException,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { PatchUserDto } from '../dtos/patch-user.dto';
 
 @Injectable()
 export class PatchUserProvider {
+  private logger = new Logger(PatchUserProvider.name)
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
 
@@ -39,6 +41,9 @@ export class PatchUserProvider {
     }
 
     const updatedUser = this.usersRepository.merge(user, patchUserDto);
+
+    this.logger.log(`User updated successfully. User ID: ${userId}`);
+    
     return await this.usersRepository.save(updatedUser);
   }
 }

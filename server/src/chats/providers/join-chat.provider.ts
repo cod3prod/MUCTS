@@ -78,7 +78,7 @@ export class JoinChatProvider {
         },
       });
 
-      this.logger.log(`User ${user.username} joined chat ${chat.title}`);
+      this.logger.log(`User ${user.username} joined chat ${chat.id}`);
 
       return updatedChat;
     });

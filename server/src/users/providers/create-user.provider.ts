@@ -3,6 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
   RequestTimeoutException,
 } from '@nestjs/common';
 import { User } from '../user.entity';
@@ -13,6 +14,7 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 
 @Injectable()
 export class CreateUserProvider {
+  private logger = new Logger(CreateUserProvider.name);
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     @Inject(forwardRef(() => HashingProvider))
@@ -50,6 +52,7 @@ export class CreateUserProvider {
       });
     }
 
+    this.logger.log(`User created successfully, User ID: ${newUser.id}`);
     return newUser;
   }
 }

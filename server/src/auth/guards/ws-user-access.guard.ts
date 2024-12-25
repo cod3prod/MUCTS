@@ -11,7 +11,7 @@ export class WsUserAccessGuard implements CanActivate {
     const data = context.switchToWs().getData();
     const user = client['user'];
 
-    this.logger.debug(`User ID: ${user.sub}, Created By ID: ${data.createdById}`); 
+    // this.logger.debug(`User ID: ${user.sub}, Created By ID: ${data.createdById}`); 
 
     if (Number(user.sub) !== Number(data.createdById)) {
       this.logger.warn(`Access denied for User ID: ${user.sub}`); 

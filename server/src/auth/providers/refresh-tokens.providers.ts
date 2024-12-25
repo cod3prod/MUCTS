@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -14,6 +15,7 @@ import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 
 @Injectable()
 export class RefreshTokensProvider {
+  private readonly logger = new Logger(RefreshTokensProvider.name)
   constructor(
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
@@ -43,6 +45,7 @@ export class RefreshTokensProvider {
         });
       }
 
+      this.logger.log(`User refreshed successfully, User ID: ${sub} `);
       return this.generateTokensProvider.generateTokens(user);
     } catch (error) {
       if (error instanceof UnauthorizedException) {

@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
   NotImplementedException,
   RequestTimeoutException,
   UnauthorizedException,
@@ -13,6 +14,7 @@ import { GenerateTokensProvider } from './generate-tokens.provider';
 
 @Injectable()
 export class LogInProvider {
+  private logger = new Logger(LogInProvider.name)
   constructor(
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
@@ -59,6 +61,9 @@ export class LogInProvider {
         nickname: user.nickname,
       }
     }
+
+    this.logger.log(`User ${user.username} logged in successfully`);
+    
     return result;
   }
 }

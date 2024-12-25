@@ -1,15 +1,19 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateChatDto } from '../dtos/create-chat.dto';
 import { Chat } from '../chat.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class CreateChatProvider {
+  private readonly logger = new Logger(CreateChatProvider.name);
   constructor(
-    @InjectRepository(Chat)
-    private chatRepository: Repository<Chat>,
     private dataSource: DataSource,
   ) {}
 
@@ -39,6 +43,10 @@ export class CreateChatProvider {
 
       createdBy.chat = chat;
       await userRepo.save(createdBy);
+
+      this.logger.log(
+        `${createdBy.username} created chat ${chat.id} successfully`,
+      );
 
       return {
         id: chat.id,

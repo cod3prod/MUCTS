@@ -20,7 +20,7 @@ export class WsAuthGuard implements CanActivate {
 
     try {
       const authToken = client.handshake.auth.token;
-      this.logger.debug('Auth:', client.handshake.auth);
+      // this.logger.debug('Auth:', client.handshake.auth);
 
       if (!authToken) {
         throw new WsException({ description: 'Authorization token not found' });
@@ -28,7 +28,7 @@ export class WsAuthGuard implements CanActivate {
 
       const payload = await this.jwtService.verifyAsync(authToken);
       client['user'] = payload;
-
+      this.logger.log(`Token verified successfully, User ID: ${payload.sub} `);
       return true;
     } catch (error) {
       if (error.message === 'jwt expired') {

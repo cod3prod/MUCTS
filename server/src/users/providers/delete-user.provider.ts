@@ -1,18 +1,17 @@
 import {
     BadRequestException,
     Injectable,
+    Logger,
     NotFoundException,
   } from '@nestjs/common';
-  import { InjectRepository } from '@nestjs/typeorm';
   import { User } from '../user.entity';
-  import { DataSource, Repository } from 'typeorm';
+  import { DataSource } from 'typeorm';
   import { Message } from 'src/messages/message.entity';
   
   @Injectable()
 export class DeleteUserProvider {
+  private logger = new Logger(DeleteUserProvider.name)
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
     private dataSource: DataSource,
   ) {}
 
@@ -21,7 +20,6 @@ export class DeleteUserProvider {
       const userRepo = manager.getRepository(User);
       const messageRepo = manager.getRepository(Message);
 
-      // 사용자 조회
       const user = await userRepo.findOne({
         where: { id },
         relations: ['chat'],
@@ -31,19 +29,19 @@ export class DeleteUserProvider {
         throw new NotFoundException('사용자를 찾을 수 없습니다');
       }
 
-      // 해당 사용자가 보낸 메시지 삭제
       await messageRepo
         .createQueryBuilder()
         .delete()
         .where('sender.id = :userId', { userId: id })
         .execute();
 
-      // 사용자 삭제
       const result = await userRepo.delete(id);
 
       if (result.affected === 0) {
         throw new BadRequestException('사용자 삭제에 실패했습니다');
       }
+
+      this.logger.log(`User deleted successfully. User ID: ${id}`);
 
       return result;
     });

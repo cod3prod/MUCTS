@@ -29,7 +29,7 @@ export class AccessTokenGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
-    this.logger.debug('Extracted token: ' + token);
+    // this.logger.debug('Extracted token: ' + token);
 
     if (!token) {
       this.logger.warn('Authorization token not found');
@@ -43,7 +43,7 @@ export class AccessTokenGuard implements CanActivate {
         this.jwtConfiguration,
       );
       request['user'] = payload;
-      this.logger.log('Token verified successfully, payload: ' + JSON.stringify(payload));
+      this.logger.log(`Token verified successfully, User ID: ${payload.sub} `);
     } catch (error) {
       this.logger.error('Token verification failed: ' + error.message);
       throw new UnauthorizedException({

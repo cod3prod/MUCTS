@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Chat } from '../chat.entity';
 import { FindChatProvider } from './find-chat.provider';
 import { WsException } from '@nestjs/websockets';
@@ -10,9 +9,8 @@ import { Message } from 'src/messages/message.entity';
 
 @Injectable()
 export class DeleteChatProvider {
+  private readonly logger = new Logger(DeleteChatProvider.name);
   constructor(
-    @InjectRepository(Chat)
-    private chatsRepository: Repository<Chat>,
     private findChatProvider: FindChatProvider,
     private dataSource: DataSource,
   ) {}
@@ -49,6 +47,8 @@ export class DeleteChatProvider {
         .delete()
         .where('chat.id = :chatId', { chatId: id })
         .execute();
+
+      this.logger.log(`Chat ${id} deleted successfully`);
 
       return {
         chatId: id,
