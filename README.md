@@ -137,6 +137,11 @@
 </table>
 <br>
 
+## ⚙ 소프트웨어 아키텍처
+
+![소프트웨어 아키텍처](https://res.cloudinary.com/dab5xf29a/image/upload/v1738839622/mucts-architecture_wzofyy.png)
+<br>
+
 ## 🖥 주요 화면 구성
 
 ### 인증 / 회원가입 / 로그인
